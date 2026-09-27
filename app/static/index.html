@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat-with-Love · 心语军师 | 微信聊天心智洞察与高情商决策系统</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fdf2f8',
+              100: '#fce7f3',
+              500: '#ec4899',
+              600: '#db2777',
+              700: '#be185d'
+            },
+            wechat: '#07c160'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .glassmorphism {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #e2e8f0;
+      border-radius: 9999px;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+    .typing-cursor {
+      display: inline-block;
+      width: 2px;
+      height: 14px;
+      background-color: #ec4899;
+      vertical-align: middle;
+      margin-left: 2px;
+      animation: blink 0.7s infinite;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans">
+
+  <!-- 顶部导航栏 -->
+  <header class="sticky top-0 z-50 glassmorphism border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-rose-500 to-pink-500 flex items-center justify-center text-white shadow-md shadow-pink-200">
+          <i data-lucide="sparkles" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold bg-gradient-to-r from-slate-900 via-rose-900 to-pink-600 bg-clip-text text-transparent">
+            Chat-with-Love · 心语军师
+          </h1>
+          <p class="text-xs text-slate-500 flex items-center gap-1">
+            <span>TypeSafe Jev (系统一)</span> · <span>狗头军师实战库</span> · <span>大模型决策</span>
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-3">
+        <button id="btnHistory" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-medium text-slate-600 flex items-center gap-1.5 transition">
+          <i data-lucide="history" class="w-4 h-4"></i>
+          <span>历史复盘</span>
+        </button>
+        <button id="btnSettings" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-medium text-slate-600 flex items-center gap-1.5 transition">
+          <i data-lucide="settings" class="w-4 h-4"></i>
+          <span>API 配置</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主体工作区 -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- 左侧：输入与对话还原 (5列) -->
+    <div class="lg:col-span-5 flex flex-col space-y-4">
+      
+      <!-- 目标背景卡片 -->
+      <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+            <i data-lucide="user-check" class="w-4 h-4 text-pink-500"></i> 对象背景设定
+          </span>
+          <span class="text-xs px-2 py-0.5 rounded-full bg-pink-50 text-pink-600 font-medium">已开启记忆追踪</span>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">对方昵称/代号</label>
+            <input id="inputAlias" type="text" value="对方" placeholder="如：相亲对象小林" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-pink-500">
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">我的 MBTI</label>
+            <input id="inputUserMbti" type="text" placeholder="如：INTJ" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-pink-500">
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">对方 MBTI</label>
+            <input id="inputTargetMbti" type="text" placeholder="如：ENFP" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-pink-500">
+          </div>
+        </div>
+      </div>
+
+      <!-- 输入切换与操作卡片 -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col flex-1">
+        <!-- 标签页 -->
+        <div class="flex border-b border-slate-100 pb-3 mb-4 space-x-4">
+          <button id="tabPasteImg" class="text-sm font-semibold text-pink-600 border-b-2 border-pink-500 pb-1 flex items-center gap-1.5">
+            <i data-lucide="image" class="w-4 h-4"></i>
+            <span>微信截图一键粘贴</span>
+          </button>
+          <button id="tabPasteText" class="text-sm font-medium text-slate-400 hover:text-slate-600 pb-1 flex items-center gap-1.5">
+            <i data-lucide="file-text" class="w-4 h-4"></i>
+            <span>文本记录输入</span>
+          </button>
+        </div>
+
+        <!-- 视图 1：截图粘贴区 -->
+        <div id="viewPasteImg" class="flex-1 flex flex-col">
+          <div id="dropZone" tabindex="0" class="border-2 border-dashed border-pink-200 hover:border-pink-400 focus:border-pink-500 focus:ring-2 focus:ring-pink-100 bg-pink-50/30 rounded-xl p-6 flex flex-col items-center justify-center text-center cursor-pointer transition flex-1 min-h-[220px]">
+            <input id="fileInput" type="file" accept="image/*" class="hidden">
+            <div id="dropPrompt" class="flex flex-col items-center">
+              <div class="w-14 h-14 rounded-full bg-pink-100/70 text-pink-500 flex items-center justify-center mb-3 shadow-inner">
+                <i data-lucide="clipboard-paste" class="w-7 h-7"></i>
+              </div>
+              <h3 class="text-sm font-semibold text-slate-700 mb-1 flex items-center gap-1.5 justify-center">
+                <span>点击聚焦后，直接按下</span>
+                <kbd class="px-1.5 py-0.5 bg-white border border-slate-300 rounded shadow-xs text-xs font-mono">Cmd+V / Ctrl+V</kbd>
+                <span>粘贴截图</span>
+              </h3>
+              <p class="text-xs text-slate-400 max-w-xs mt-1">
+                ⚡ 本地离线 OCR · 0 Token 消耗 · 隐私不出本机 · 支持电脑微信截图直接粘贴
+              </p>
+              <div class="mt-2.5 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-medium border border-emerald-100">
+                <i data-lucide="shield-check" class="w-3 h-3 text-emerald-600"></i>
+                <span>离线轻量引擎已就绪 · 纯文本大模型无缝兼容</span>
+              </div>
+            </div>
+            <!-- 图片预览 -->
+            <div id="imagePreviewContainer" class="hidden w-full flex flex-col items-center">
+              <img id="imagePreview" class="max-h-48 rounded-lg shadow border border-slate-200 object-contain mb-3" />
+              <button id="btnRemoveImage" class="text-xs text-rose-500 hover:underline flex items-center gap-1">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> 移除并重新粘贴
+              </button>
+            </div>
+          </div>
+          <button id="btnAnalyzeImage" disabled class="mt-4 w-full py-2.5 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white rounded-xl text-sm font-semibold shadow-md shadow-pink-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition">
+            <i data-lucide="sparkle" class="w-4 h-4"></i>
+            <span>启动军师分析 (Jev心智解码)</span>
+          </button>
+        </div>
+
+        <!-- 视图 2：文本粘贴区 -->
+        <div id="viewPasteText" class="hidden flex-1 flex flex-col">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs text-slate-400">快速填入实战案例测试：</span>
+            <div class="flex gap-1.5">
+              <button class="btnDemo px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-[11px] text-slate-600" data-case="tired">加班太累</button>
+              <button class="btnDemo px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-[11px] text-slate-600" data-case="cold">冷淡敷衍</button>
+              <button class="btnDemo px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-[11px] text-slate-600" data-case="shittest">废物测试</button>
+            </div>
+          </div>
+          <textarea id="inputText" rows="8" placeholder="粘贴复制的微信聊天记录，例如：&#10;我: 今天工作顺利吗？&#10;对方: 别提了，连轴转开了一整天会，整个人都快散架了😭&#10;对方: 现在刚回到家，动都不想动" class="w-full flex-1 p-3 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-200 resize-none font-sans"></textarea>
+          <button id="btnAnalyzeText" class="mt-4 w-full py-2.5 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white rounded-xl text-sm font-semibold shadow-md shadow-pink-200 flex items-center justify-center gap-2 transition">
+            <i data-lucide="sparkle" class="w-4 h-4"></i>
+            <span>启动军师分析 (Jev心智解码)</span>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- 微信气泡还原区 -->
+      <div id="dialogueContainer" class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm flex flex-col">
+        <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2">
+          <span class="text-xs font-semibold text-slate-600 flex items-center gap-1.5">
+            <i data-lucide="messages-square" class="w-4 h-4 text-emerald-500"></i> 对话还原 (左右气泡)
+          </span>
+          <span id="dialogueCount" class="text-[11px] text-slate-400">等待输入...</span>
+        </div>
+        <div id="bubbleList" class="flex flex-col space-y-3 max-h-64 overflow-y-auto custom-scrollbar p-1">
+          <div class="text-center py-8 text-xs text-slate-400">
+            暂无解析记录，请在上方粘贴截图或输入对话
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 右侧：军师心智看板与三阶策略 (7列) -->
+    <div class="lg:col-span-7 flex flex-col space-y-4">
+      
+      <!-- Jev 毫秒级决策卡片 (系统一) -->
+      <div class="bg-gradient-to-br from-white to-pink-50/40 rounded-2xl p-5 border border-pink-100 shadow-sm relative overflow-hidden">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-1 rounded-lg bg-pink-100 text-pink-700 text-xs font-bold flex items-center gap-1">
+              <i data-lucide="zap" class="w-3.5 h-3.5 fill-pink-500"></i> Jev 系统一心智判决
+            </span>
+            <span id="latencyBadge" class="text-[11px] text-slate-400">响应: -- ms</span>
+          </div>
+          <div id="crisisBadge" class="hidden px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 text-xs font-semibold flex items-center gap-1">
+            <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i> 安全预警
+          </div>
+        </div>
+
+        <!-- 核心判断条 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
+          <!-- 推荐策略 -->
+          <div class="bg-white/80 p-3 rounded-xl border border-slate-200/60 shadow-xs">
+            <span class="text-[11px] text-slate-400 block mb-0.5">当前主选应对策略</span>
+            <div id="valStrategy" class="text-base font-bold text-pink-600 flex items-center gap-1.5">
+              <span>待分析</span>
+            </div>
+            <p id="valStrategyDesc" class="text-[11px] text-slate-500 mt-1 line-clamp-2">根据互动张力匹配最佳应对</p>
+          </div>
+          <!-- 对方深层心理意图 -->
+          <div class="bg-white/80 p-3 rounded-xl border border-slate-200/60 shadow-xs">
+            <span class="text-[11px] text-slate-400 block mb-0.5">对方深层心理动机</span>
+            <div id="valIntent" class="text-base font-bold text-slate-800">
+              <span>待分析</span>
+            </div>
+            <p id="valEmotion" class="text-[11px] text-slate-500 mt-1">情绪状态：--</p>
+          </div>
+          <!-- 废物测试识别 -->
+          <div class="bg-white/80 p-3 rounded-xl border border-slate-200/60 shadow-xs">
+            <span class="text-[11px] text-slate-400 block mb-0.5">废物测试 / 设防试探</span>
+            <div id="valShitTest" class="text-base font-bold text-emerald-600">
+              <span>待检测</span>
+            </div>
+            <p id="valShitTestProb" class="text-[11px] text-slate-500 mt-1">置信概率：--</p>
+          </div>
+        </div>
+
+        <!-- 三维心理雷达仪表条 -->
+        <div class="grid grid-cols-3 gap-3">
+          <!-- 好感度 -->
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="font-medium text-slate-600">好感与吸引度</span>
+              <span id="numInterest" class="font-bold text-pink-600">--</span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+              <div id="barInterest" class="bg-gradient-to-r from-pink-400 to-rose-500 h-2 rounded-full transition-all duration-700" style="width: 0%"></div>
+            </div>
+          </div>
+          <!-- 防备心 -->
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="font-medium text-slate-600">心理防备程度</span>
+              <span id="numDefense" class="font-bold text-amber-600">--</span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+              <div id="barDefense" class="bg-gradient-to-r from-amber-400 to-orange-500 h-2 rounded-full transition-all duration-700" style="width: 0%"></div>
+            </div>
+          </div>
+          <!-- 权力平衡 -->
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="font-medium text-slate-600">互动主导均势</span>
+              <span id="numPower" class="font-bold text-indigo-600">--</span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+              <div id="barPower" class="bg-gradient-to-r from-indigo-400 to-purple-500 h-2 rounded-full transition-all duration-700" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 三阶实战回复话术卡片 (系统二) -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex-1 flex flex-col">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <h2 class="text-sm font-bold text-slate-800">狗头军师实战话术编排</h2>
+          </div>
+          <span class="text-xs text-slate-400">点击卡片右侧一键复制到微信</span>
+        </div>
+
+        <!-- 3 个版本列表 -->
+        <div id="replyList" class="flex flex-col space-y-3 flex-1">
+          
+          <div class="text-center py-16 text-slate-400 text-xs">
+            <i data-lucide="message-square-plus" class="w-8 h-8 mx-auto mb-2 text-slate-300"></i>
+            点击左侧分析按钮，即可瞬间生成三阶高质量应对策略与话术
+          </div>
+
+        </div>
+
+        <!-- 后续分支推演 (预测对方后续反应) -->
+        <div id="branchCard" class="hidden mt-5 pt-4 border-t border-slate-100">
+          <h3 class="text-xs font-bold text-slate-600 mb-2.5 flex items-center gap-1.5">
+            <i data-lucide="git-branch" class="w-4 h-4 text-purple-500"></i> 发送后的 3 种应对分支预判
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-[11px]">
+            <div class="p-2.5 rounded-xl bg-emerald-50/60 border border-emerald-100">
+              <span class="font-bold text-emerald-700 block mb-1">🟢 积极接梗/反问时：</span>
+              <p id="branchPos" class="text-slate-600">--</p>
+            </div>
+            <div class="p-2.5 rounded-xl bg-amber-50/60 border border-amber-100">
+              <span class="font-bold text-amber-700 block mb-1">🟡 礼貌客套/敷衍时：</span>
+              <p id="branchNeu" class="text-slate-600">--</p>
+            </div>
+            <div class="p-2.5 rounded-xl bg-rose-50/60 border border-rose-100">
+              <span class="font-bold text-rose-700 block mb-1">🔴 冷淡未回/回撤时：</span>
+              <p id="branchNeg" class="text-slate-600">--</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- API 配置弹窗 (Modal) -->
+  <div id="modalConfig" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 relative">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+        <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+          <i data-lucide="key-round" class="w-5 h-5 text-pink-500"></i> 模型与 API 密钥配置
+        </h3>
+        <button id="btnCloseModal" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4 text-xs">
+        <div class="p-3 bg-pink-50/60 rounded-xl border border-pink-100 text-pink-700 flex items-start gap-2">
+          <i data-lucide="info" class="w-4 h-4 mt-0.5 shrink-0"></i>
+          <span>未填写 API Key 时，系统将自动使用内置的高保真离线启发模型，确保您开箱即用、随时可用！</span>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Jev API Key (TypeSafe AI)</label>
+          <input id="cfgJevKey" type="password" placeholder="填入您获得的 Jev API Key" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-pink-200 focus:outline-none">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Jev API Base URL</label>
+          <input id="cfgJevUrl" type="text" value="https://api.typesafe.ai/v1" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-pink-200 focus:outline-none">
+        </div>
+
+        <hr class="border-slate-100">
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">生成大模型 API Key (LLM)</label>
+          <input id="cfgLlmKey" type="password" placeholder="如 DeepSeek / OpenAI / 中转站 API Key" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-pink-200 focus:outline-none">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">大模型 Base URL</label>
+            <input id="cfgLlmUrl" type="text" value="https://api.openai.com/v1" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-pink-200 focus:outline-none">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">模型代号</label>
+            <input id="cfgLlmModel" type="text" value="deepseek-chat" placeholder="如 gpt-4o-mini" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-pink-200 focus:outline-none">
+          </div>
+        </div>
+
+      </div>
+
+      <div class="mt-6 flex justify-end gap-2.5">
+        <button id="btnCancelModal" class="px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50">取消</button>
+        <button id="btnSaveConfig" class="px-4 py-2 rounded-xl bg-pink-500 hover:bg-pink-600 text-white text-xs font-semibold shadow-sm">保存配置</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 引入前端交互脚本 -->
+  <script src="/static/js/app.js"></script>
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>
