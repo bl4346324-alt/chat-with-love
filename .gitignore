@@ -6,4 +6,6 @@ data/
 *.sqlite3
 .DS_Store
 goutoujunshi-repo/
+bin/
+
 

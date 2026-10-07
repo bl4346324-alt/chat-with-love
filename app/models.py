@@ -13,6 +13,7 @@ class TextAnalysisRequest(BaseModel):
     user_mbti: Optional[str] = ""
     target_mbti: Optional[str] = ""
     current_goal: Optional[str] = "推进关系"
+    auto_invoke: Optional[bool] = False
 
 class JevDecision(BaseModel):
     primary_strategy: str = Field(..., description="承接 / 降压 / 调侃 / 轻推 / 约见 / 澄清 / 收线")
@@ -25,6 +26,15 @@ class JevDecision(BaseModel):
     shit_test_prob: float = Field(0.0, description="废物测试置信概率 (0.0-1.0)")
     is_crisis: bool = Field(False, description="是否存在语言暴力或安全危机")
     emotional_state: str = Field("平稳", description="对方当下的主要情绪")
+
+class SkillInsight(BaseModel):
+    active_skills: List[str] = Field(default_factory=lambda: ["情圣 (QingSheng v6.0)", "狗头军师 (GouTouJunShi)"])
+    stage_number: int = Field(2, ge=1, le=7, description="当前所处关系推进阶段 1-7")
+    stage_name: str = Field(..., description="阶段名称，如：阶段3：关系升温")
+    stage_goal: str = Field(..., description="当前阶段核心目标")
+    signal_type: str = Field(..., description="IOI 兴趣信号 / IOD 设防信号 / 废物测试 / 平稳日常")
+    signal_detail: str = Field(..., description="信号深度解读")
+    tactics_suggested: List[str] = Field(default_factory=list, description="推荐实战技法标签")
 
 class ReplyOption(BaseModel):
     tier: str = Field(..., description="稳健走心版 / 高情商策略版 / 设立边界版")
@@ -42,6 +52,7 @@ class AnalysisResponse(BaseModel):
     success: bool = True
     dialogue: List[MessageItem]
     jev: JevDecision
+    skill_insight: Optional[SkillInsight] = None
     replies: List[ReplyOption]
     branch: BranchPrediction
     latency_ms: int = 0
@@ -62,4 +73,4 @@ class StreamAnalysisRequest(BaseModel):
     target_alias: Optional[str] = "对方"
     user_mbti: Optional[str] = ""
     target_mbti: Optional[str] = ""
-
+    auto_invoke: Optional[bool] = False

@@ -6,7 +6,7 @@ from pathlib import Path
 
 from app.config import settings
 from app.database import init_db
-from app.routes import analyze, config, history
+from app.routes import analyze, config, history, skills
 
 # 初始化本地数据库
 init_db()
@@ -14,7 +14,7 @@ init_db()
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
-    description="基于 TypeSafe Jev 决策模型与狗头军师实战知识库的微信聊天心智洞察与军师决策系统"
+    description="基于 TypeSafe Jev 决策模型与情圣/狗头军师实战知识库的微信聊天心智洞察与军师决策系统"
 )
 
 # 允许跨域
@@ -30,6 +30,7 @@ app.add_middleware(
 app.include_router(analyze.router)
 app.include_router(config.router)
 app.include_router(history.router)
+app.include_router(skills.router)
 
 # 挂载静态资源
 static_dir = Path(__file__).resolve().parent / "static"

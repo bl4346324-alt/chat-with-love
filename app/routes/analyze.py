@@ -9,11 +9,12 @@ from fastapi.responses import StreamingResponse
 
 from app.models import (
     TextAnalysisRequest, StreamAnalysisRequest, AnalysisResponse,
-    MessageItem, JevDecision, ReplyOption, BranchPrediction
+    MessageItem, JevDecision, ReplyOption, BranchPrediction, SkillInsight
 )
 from app.services.ocr_service import OCRService
 from app.services.jev_service import JevService
 from app.services.llm_service import LLMService
+from app.services.skill_service import skill_service
 from app.database import save_analysis
 from app.config import settings
 
@@ -89,19 +90,27 @@ async def analyze_text(request: TextAnalysisRequest):
         if not dialogue:
             raise HTTPException(status_code=400, detail="未解析到有效对话内容，请检查输入")
 
-        # 2. Jev 系统一毫秒级决策 (判断策略、心理意图、好感度、防备心)
+        # 2. 自动调用 GitHub 恋爱 Skill (情圣 × 狗头军师) 进行阶段与信号解码
+        skill_insight = skill_service.analyze_love_dialogue(
+            dialogue=dialogue,
+            user_mbti=request.user_mbti or "",
+            target_mbti=request.target_mbti or ""
+        )
+
+        # 3. Jev 系统一毫秒级决策 (判断策略、心理意图、好感度、防备心)
         jev_decision = await jev_service.decide_dialogue_state(
             dialogue=dialogue,
             user_mbti=request.user_mbti or "",
             target_mbti=request.target_mbti or ""
         )
 
-        # 3. 大模型系统二高情商话术生成
+        # 4. 大模型系统二高情商话术生成 (结合情圣实战规则)
         generation_res = await llm_service.generate_replies(
             dialogue=dialogue,
             jev_decision=jev_decision,
             user_mbti=request.user_mbti or "",
-            target_mbti=request.target_mbti or ""
+            target_mbti=request.target_mbti or "",
+            skill_insight=skill_insight
         )
 
         replies = [ReplyOption(**r) if isinstance(r, dict) else r for r in generation_res["replies"]]
@@ -109,7 +118,7 @@ async def analyze_text(request: TextAnalysisRequest):
 
         latency = int((time.time() - start_time) * 1000)
 
-        # 4. 存储分析结果到本地 SQLite
+        # 5. 存储分析结果到本地 SQLite
         save_analysis(
             source_type="text",
             raw_input=request.text,
@@ -122,12 +131,14 @@ async def analyze_text(request: TextAnalysisRequest):
             success=True,
             dialogue=dialogue,
             jev=jev_decision,
+            skill_insight=skill_insight,
             replies=replies,
             branch=branch,
             latency_ms=latency,
             is_mock=not bool(settings.JEV_API_KEY)
         )
     except Exception as e:
+        logger.error(f"文本分析异常: {e}", exc_info=True)
         return AnalysisResponse(
             success=False,
             dialogue=[],
@@ -159,7 +170,6 @@ async def analyze_screenshot(
         if file:
             image_bytes = await file.read()
         elif image_base64:
-            # 剥离可能的 base64 前缀
             if "," in image_base64:
                 image_base64 = image_base64.split(",")[1]
             image_bytes = base64.b64decode(image_base64)
@@ -170,19 +180,27 @@ async def analyze_screenshot(
         # 1. 微信截图视觉解析 (区分左右气泡与时间)
         dialogue = await ocr_service.parse_screenshot(image_bytes, default_other_name=target_alias or "对方")
 
-        # 2. Jev 系统一毫秒级决策
+        # 2. 自动调用 GitHub 恋爱 Skill 进行阶段与信号解码
+        skill_insight = skill_service.analyze_love_dialogue(
+            dialogue=dialogue,
+            user_mbti=user_mbti or "",
+            target_mbti=target_mbti or ""
+        )
+
+        # 3. Jev 系统一毫秒级决策
         jev_decision = await jev_service.decide_dialogue_state(
             dialogue=dialogue,
             user_mbti=user_mbti or "",
             target_mbti=target_mbti or ""
         )
 
-        # 3. 大模型系统二生成
+        # 4. 大模型系统二生成
         generation_res = await llm_service.generate_replies(
             dialogue=dialogue,
             jev_decision=jev_decision,
             user_mbti=user_mbti or "",
-            target_mbti=target_mbti or ""
+            target_mbti=target_mbti or "",
+            skill_insight=skill_insight
         )
 
         replies = [ReplyOption(**r) if isinstance(r, dict) else r for r in generation_res["replies"]]
@@ -190,7 +208,7 @@ async def analyze_screenshot(
 
         latency = int((time.time() - start_time) * 1000)
 
-        # 4. 存储分析结果到本地 SQLite
+        # 5. 存储分析结果到本地 SQLite
         save_analysis(
             source_type="screenshot",
             raw_input="[图片上传/粘贴截图]",
@@ -203,12 +221,14 @@ async def analyze_screenshot(
             success=True,
             dialogue=dialogue,
             jev=jev_decision,
+            skill_insight=skill_insight,
             replies=replies,
             branch=branch,
             latency_ms=latency,
             is_mock=not bool(settings.JEV_API_KEY)
         )
     except Exception as e:
+        logger.error(f"截图分析异常: {e}", exc_info=True)
         return AnalysisResponse(
             success=False,
             dialogue=[],
@@ -230,9 +250,10 @@ async def analyze_stream(request: StreamAnalysisRequest):
     """
     流式打字机 0.2 秒极速反馈 SSE 接口：
     1. 100~200ms 内完成离线本地 OCR / 文本解析，立即推送 event: dialogue
-    2. ~200ms Jev 系统一毫秒级决策完成，立即推送 event: jev (亮起策略标签与三维心理雷达)
-    3. 大模型系统二逐字流式打字生成，推送 event: stream_delta (三阶话术卡片打字机联动)
-    4. 生成完毕落库并推送 event: done
+    2. 自动调用 GitHub 恋爱 Skill，立即推送 event: skill (阶段定位、IOI/IOD信号与推荐技法)
+    3. ~200ms Jev 系统一毫秒级决策完成，立即推送 event: jev (亮起策略标签与三维心理雷达)
+    4. 大模型系统二逐字流式打字生成，推送 event: stream_delta (三阶话术卡片打字机联动)
+    5. 生成完毕落库并推送 event: done
     """
     async def event_generator():
         start_time = time.time()
@@ -255,7 +276,15 @@ async def analyze_stream(request: StreamAnalysisRequest):
             ocr_latency = int((time.time() - start_time) * 1000)
             yield f"event: dialogue\ndata: {json.dumps({'dialogue': [d.dict() for d in dialogue], 'count': len(dialogue), 'latency_ms': ocr_latency}, ensure_ascii=False)}\n\n"
 
-            # 2. Jev 系统一毫秒级心智决策 (0.2s 极速反馈)
+            # 2. 自动调用 GitHub 恋爱 Skill (情圣 × 狗头军师) 毫秒级心智解码
+            skill_insight = skill_service.analyze_love_dialogue(
+                dialogue=dialogue,
+                user_mbti=request.user_mbti or "",
+                target_mbti=request.target_mbti or ""
+            )
+            yield f"event: skill\ndata: {json.dumps({'skill': skill_insight.dict()}, ensure_ascii=False)}\n\n"
+
+            # 3. Jev 系统一毫秒级心智决策 (0.2s 极速反馈)
             jev_start = time.time()
             jev_decision = await jev_service.decide_dialogue_state(
                 dialogue=dialogue,
@@ -265,19 +294,20 @@ async def analyze_stream(request: StreamAnalysisRequest):
             total_jev_latency = int((time.time() - start_time) * 1000)
             yield f"event: jev\ndata: {json.dumps({'jev': jev_decision.dict(), 'latency_ms': total_jev_latency}, ensure_ascii=False)}\n\n"
 
-            # 3. 大模型系统二实战话术打字机流式生成
+            # 4. 大模型系统二实战话术打字机流式生成
             accumulated_text = ""
             async for chunk in llm_service.generate_replies_stream(
                 dialogue=dialogue,
                 jev_decision=jev_decision,
                 user_mbti=request.user_mbti or "",
-                target_mbti=request.target_mbti or ""
+                target_mbti=request.target_mbti or "",
+                skill_insight=skill_insight
             ):
                 accumulated_text += chunk
                 partial_replies, partial_branch = parse_partial_replies(accumulated_text)
                 yield f"event: stream_delta\ndata: {json.dumps({'delta': chunk, 'replies': partial_replies, 'branch': partial_branch}, ensure_ascii=False)}\n\n"
 
-            # 4. 完成解析与持久化存储
+            # 5. 完成解析与持久化存储
             final_replies = []
             final_branch = {}
             try:
@@ -303,6 +333,7 @@ async def analyze_stream(request: StreamAnalysisRequest):
                 "success": True,
                 "dialogue": [d.dict() for d in dialogue],
                 "jev": jev_decision.dict(),
+                "skill_insight": skill_insight.dict(),
                 "replies": [r.dict() for r in replies_objs],
                 "branch": branch_obj.dict(),
                 "latency_ms": total_latency,
@@ -323,4 +354,3 @@ async def analyze_stream(request: StreamAnalysisRequest):
             "X-Accel-Buffering": "no"
         }
     )
-

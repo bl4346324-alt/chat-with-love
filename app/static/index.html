@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chat-with-Love · 心语军师 | 微信聊天心智洞察与高情商决策系统</title>
+  <title>Chat-with-Love · 心语军师 | 情圣恋爱Skill与高情商决策系统</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons CDN -->
@@ -29,8 +29,8 @@
   </script>
   <style>
     .glassmorphism {
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(12px);
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(14px);
     }
     .custom-scrollbar::-webkit-scrollbar {
       width: 6px;
@@ -65,11 +65,17 @@
           <i data-lucide="sparkles" class="w-6 h-6"></i>
         </div>
         <div>
-          <h1 class="text-lg font-bold bg-gradient-to-r from-slate-900 via-rose-900 to-pink-600 bg-clip-text text-transparent">
-            Chat-with-Love · 心语军师
-          </h1>
-          <p class="text-xs text-slate-500 flex items-center gap-1">
-            <span>TypeSafe Jev (系统一)</span> · <span>狗头军师实战库</span> · <span>大模型决策</span>
+          <div class="flex items-center gap-2">
+            <h1 class="text-lg font-bold bg-gradient-to-r from-slate-900 via-rose-900 to-pink-600 bg-clip-text text-transparent">
+              Chat-with-Love · 心语军师
+            </h1>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-pink-100/80 text-pink-700 text-[10px] font-semibold border border-pink-200">
+              <i data-lucide="flame" class="w-3 h-3 text-pink-500"></i>
+              <span>情圣恋爱 Skill 已装载</span>
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 flex items-center gap-1.5">
+            <span class="text-pink-600 font-medium">情圣 (QingSheng v6.0)</span> · <span>TypeSafe Jev (系统一)</span> · <span>狗头军师实战库</span>
           </p>
         </div>
       </div>
@@ -92,13 +98,35 @@
     <!-- 左侧：输入与对话还原 (5列) -->
     <div class="lg:col-span-5 flex flex-col space-y-4">
       
-      <!-- 目标背景卡片 -->
-      <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm">
-        <div class="flex items-center justify-between mb-3">
+      <!-- 自动调用与背景设定卡片 -->
+      <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm space-y-3">
+        
+        <!-- 自动调用 Skill 开关控制栏 -->
+        <div class="flex items-center justify-between p-2.5 bg-gradient-to-r from-pink-50/80 to-rose-50/80 border border-pink-200/70 rounded-xl text-xs">
+          <div class="flex items-center gap-2">
+            <span class="relative flex h-2.5 w-2.5">
+              <span id="autoInvokePing" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-pink-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-pink-500"></span>
+            </span>
+            <div class="flex flex-col">
+              <span class="font-bold text-slate-800 flex items-center gap-1">
+                <span>⚡ 输入后自动调用恋爱 Skill</span>
+                <span class="text-[10px] px-1.5 py-0.2 rounded bg-pink-200/70 text-pink-800 font-semibold">实战引擎</span>
+              </span>
+              <span id="autoInvokeStatus" class="text-[11px] text-pink-600 font-medium">输入聊天或粘贴截图后，无需点击自动秒析</span>
+            </div>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="toggleAutoInvoke" checked class="sr-only peer">
+            <div class="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-pink-500"></div>
+          </label>
+        </div>
+
+        <div class="flex items-center justify-between">
           <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
             <i data-lucide="user-check" class="w-4 h-4 text-pink-500"></i> 对象背景设定
           </span>
-          <span class="text-xs px-2 py-0.5 rounded-full bg-pink-50 text-pink-600 font-medium">已开启记忆追踪</span>
+          <span class="text-xs px-2 py-0.5 rounded-full bg-pink-50 text-pink-600 font-medium">记忆追踪已就绪</span>
         </div>
         <div class="grid grid-cols-3 gap-2">
           <div>
@@ -139,16 +167,16 @@
                 <i data-lucide="clipboard-paste" class="w-7 h-7"></i>
               </div>
               <h3 class="text-sm font-semibold text-slate-700 mb-1 flex items-center gap-1.5 justify-center">
-                <span>点击聚焦后，直接按下</span>
+                <span>直接按下</span>
                 <kbd class="px-1.5 py-0.5 bg-white border border-slate-300 rounded shadow-xs text-xs font-mono">Cmd+V / Ctrl+V</kbd>
                 <span>粘贴截图</span>
               </h3>
               <p class="text-xs text-slate-400 max-w-xs mt-1">
-                ⚡ 本地离线 OCR · 0 Token 消耗 · 隐私不出本机 · 支持电脑微信截图直接粘贴
+                ⚡ 粘贴后自动调用情圣恋爱 Skill · 0 Token 本地 OCR · 隐私不出本机
               </p>
               <div class="mt-2.5 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-medium border border-emerald-100">
                 <i data-lucide="shield-check" class="w-3 h-3 text-emerald-600"></i>
-                <span>离线轻量引擎已就绪 · 纯文本大模型无缝兼容</span>
+                <span>自动触发模式：已就绪</span>
               </div>
             </div>
             <!-- 图片预览 -->
@@ -161,14 +189,14 @@
           </div>
           <button id="btnAnalyzeImage" disabled class="mt-4 w-full py-2.5 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white rounded-xl text-sm font-semibold shadow-md shadow-pink-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition">
             <i data-lucide="sparkle" class="w-4 h-4"></i>
-            <span>启动军师分析 (Jev心智解码)</span>
+            <span>手动触发军师分析 (情圣Skill驱动)</span>
           </button>
         </div>
 
         <!-- 视图 2：文本粘贴区 -->
         <div id="viewPasteText" class="hidden flex-1 flex flex-col">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-xs text-slate-400">快速填入实战案例测试：</span>
+            <span class="text-xs text-slate-400">点击即刻自动填入并调用：</span>
             <div class="flex gap-1.5">
               <button class="btnDemo px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-[11px] text-slate-600" data-case="tired">加班太累</button>
               <button class="btnDemo px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-[11px] text-slate-600" data-case="cold">冷淡敷衍</button>
@@ -176,9 +204,15 @@
             </div>
           </div>
           <textarea id="inputText" rows="8" placeholder="粘贴复制的微信聊天记录，例如：&#10;我: 今天工作顺利吗？&#10;对方: 别提了，连轴转开了一整天会，整个人都快散架了😭&#10;对方: 现在刚回到家，动都不想动" class="w-full flex-1 p-3 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-200 resize-none font-sans"></textarea>
-          <button id="btnAnalyzeText" class="mt-4 w-full py-2.5 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white rounded-xl text-sm font-semibold shadow-md shadow-pink-200 flex items-center justify-center gap-2 transition">
+          
+          <div class="flex items-center justify-between mt-2 text-[11px] text-slate-400 px-1">
+            <span id="autoTypingNotice">✨ 键入对话停顿 800ms 或直接粘贴将自动调用 Skill</span>
+            <span id="inputCharCount">0 字</span>
+          </div>
+
+          <button id="btnAnalyzeText" class="mt-3 w-full py-2.5 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white rounded-xl text-sm font-semibold shadow-md shadow-pink-200 flex items-center justify-center gap-2 transition">
             <i data-lucide="sparkle" class="w-4 h-4"></i>
-            <span>启动军师分析 (Jev心智解码)</span>
+            <span>手动触发军师分析 (情圣Skill驱动)</span>
           </button>
         </div>
 
@@ -194,7 +228,7 @@
         </div>
         <div id="bubbleList" class="flex flex-col space-y-3 max-h-64 overflow-y-auto custom-scrollbar p-1">
           <div class="text-center py-8 text-xs text-slate-400">
-            暂无解析记录，请在上方粘贴截图或输入对话
+            暂无解析记录，输入聊天内容后将自动还原
           </div>
         </div>
       </div>
@@ -204,6 +238,68 @@
     <!-- 右侧：军师心智看板与三阶策略 (7列) -->
     <div class="lg:col-span-7 flex flex-col space-y-4">
       
+      <!-- 恋爱 Skill 心智研判看板 (情圣 × 狗头军师) -->
+      <div class="bg-white rounded-2xl p-5 border border-pink-100/90 shadow-sm relative overflow-hidden">
+        <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2.5">
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-lg bg-pink-500 text-white flex items-center justify-center text-xs shadow-sm">
+              <i data-lucide="heart-handshake" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-sm font-bold text-slate-800">情圣恋爱私教 · 心智研判</span>
+                <span class="text-[10px] px-1.5 py-0.2 rounded bg-pink-100 text-pink-700 font-semibold">GitHub Skill</span>
+              </div>
+              <p class="text-[10px] text-slate-400">tomwong001/qingsheng-skill 深度驱动 · 7阶段推进与信号雷达</p>
+            </div>
+          </div>
+          <span id="skillStageBadge" class="px-2.5 py-1 rounded-full bg-pink-100 text-pink-700 text-xs font-bold border border-pink-200">
+            阶段 2: 建立好感
+          </span>
+        </div>
+
+        <!-- 7阶段横向推进进度条 -->
+        <div class="mb-4 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+          <div class="flex items-center justify-between text-[11px] mb-1.5">
+            <span class="text-slate-500 font-medium">七阶段推进进度：</span>
+            <span id="stageGoalText" class="text-pink-600 font-semibold text-[11px]">展现真实生活与品味，激发彼此好奇心</span>
+          </div>
+          <div class="grid grid-cols-7 gap-1 text-[10px] text-center font-medium">
+            <div id="step-1" class="py-1 rounded bg-slate-100 text-slate-400 transition-all">1 破冰</div>
+            <div id="step-2" class="py-1 rounded bg-pink-500 text-white shadow-xs font-bold transition-all">2 好感</div>
+            <div id="step-3" class="py-1 rounded bg-slate-100 text-slate-400 transition-all">3 升温</div>
+            <div id="step-4" class="py-1 rounded bg-slate-100 text-slate-400 transition-all">4 邀约</div>
+            <div id="step-5" class="py-1 rounded bg-slate-100 text-slate-400 transition-all">5 约会</div>
+            <div id="step-6" class="py-1 rounded bg-slate-100 text-slate-400 transition-all">6 亲密</div>
+            <div id="step-7" class="py-1 rounded bg-slate-100 text-slate-400 transition-all">7 确立</div>
+          </div>
+        </div>
+
+        <!-- 信号解码与推荐技法 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+          <!-- 信号解码 -->
+          <div class="p-3 bg-pink-50/40 rounded-xl border border-pink-100/70">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-[11px] text-slate-400 font-medium">对方互动信号解码</span>
+              <span id="skillSignalType" class="px-2 py-0.2 rounded text-[11px] font-bold bg-pink-100 text-pink-700">中立日常</span>
+            </div>
+            <p id="skillSignalDetail" class="text-slate-600 text-[11px] leading-relaxed">
+              输入聊天内容后，情圣 Skill 将自动研判对方的 IOI/IOD 信号或设防试探。
+            </p>
+          </div>
+          <!-- 推荐实战技法矩阵 -->
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/60">
+            <span class="text-[11px] text-slate-400 font-medium block mb-1.5">情圣推荐实战技法</span>
+            <div id="skillTacticsContainer" class="flex flex-wrap gap-1.5">
+              <span class="px-2 py-0.5 rounded bg-white text-slate-700 border border-slate-200 text-[11px]">#情绪共情</span>
+              <span class="px-2 py-0.5 rounded bg-white text-slate-700 border border-slate-200 text-[11px]">#软性DHV</span>
+              <span class="px-2 py-0.5 rounded bg-white text-slate-700 border border-slate-200 text-[11px]">#拉扯升温</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
       <!-- Jev 毫秒级决策卡片 (系统一) -->
       <div class="bg-gradient-to-br from-white to-pink-50/40 rounded-2xl p-5 border border-pink-100 shadow-sm relative overflow-hidden">
         <div class="flex items-center justify-between mb-4">
@@ -287,19 +383,17 @@
         <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
           <div class="flex items-center gap-2">
             <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            <h2 class="text-sm font-bold text-slate-800">狗头军师实战话术编排</h2>
+            <h2 class="text-sm font-bold text-slate-800">情圣与军师实战话术编排</h2>
           </div>
           <span class="text-xs text-slate-400">点击卡片右侧一键复制到微信</span>
         </div>
 
         <!-- 3 个版本列表 -->
         <div id="replyList" class="flex flex-col space-y-3 flex-1">
-          
           <div class="text-center py-16 text-slate-400 text-xs">
             <i data-lucide="message-square-plus" class="w-8 h-8 mx-auto mb-2 text-slate-300"></i>
-            点击左侧分析按钮，即可瞬间生成三阶高质量应对策略与话术
+            输入聊天文字或粘贴微信截图，情圣恋爱 Skill 即自动启动心智推演
           </div>
-
         </div>
 
         <!-- 后续分支推演 (预测对方后续反应) -->
@@ -344,7 +438,7 @@
       <div class="space-y-4 text-xs">
         <div class="p-3 bg-pink-50/60 rounded-xl border border-pink-100 text-pink-700 flex items-start gap-2">
           <i data-lucide="info" class="w-4 h-4 mt-0.5 shrink-0"></i>
-          <span>未填写 API Key 时，系统将自动使用内置的高保真离线启发模型，确保您开箱即用、随时可用！</span>
+          <span>已装载 GitHub 开源《情圣》与《狗头军师》恋爱知识库。未填 API Key 时自动由本地启发模型驱动，开箱即用！</span>
         </div>
 
         <div>
